@@ -159,4 +159,4 @@ def menu_utama():
 
 # Menjalankan program
 siapkan_file_akun()
-menu_utama()2
+menu_utama()
