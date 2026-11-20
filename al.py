@@ -4,7 +4,7 @@ import csv #Mengimpor library csv untuk membaca dan menyimpan data CSV
 import os #Mengimpor library os untuk mengelola file
 # Fitur registrasi mahasiswa
 def registrasi():
-    print("\n===== REGISTRASI MAHASISWA =====")
+    print("\n===== STUDENT REGISTRATION =====")
     nama = input("Masukkan nama lengkap: ")
     nim = input("Masukkan NIM: ")
     username = input("Buat username: ")
@@ -30,27 +30,83 @@ def registrasi():
     print("\nRegistrasi berhasil!")
     print("Selamat, akun kamu sudah dibuat.")
 def login_mahasiswa():
-    print("\n===== LOGIN MAHASISWA ======")
-    username = input("Masukkan username: ")
-    # Meminta pengguna memasukkan password
-    password = input("Masukkan password: ")
-    with open("akun.csv", "r", newline="") as file:
-        reader = csv.DictReader(file)
-        berhasil = False
-
-        for data in reader:
-            if data["Username"] == username and data["Password"] == password:
-                print("\nLogin berhasil!")
-                # berhasil = True
-                # Masuk ke beranda mahasiswa
-                beranda_mahasiswa(
-                data["Nama"],
-                data["Prodi"],
-                data["Fakultas"])
-                break
+    print("\n===== UNIDAY - STUDENT HUB ======")
+    print(" Your Personal Academic Workspace" \
+    "Manage Your Schedule, Tasks, and Academic Progress.")
+    print("-" * 55)
+    print("1. Student Login")
+    print("2. Forgot Password")
+    print("3. Back to Main Menu...")
+    print("=" * 55)
+    pilihan = input("Masukan Pilihan (1/3) = ")
+    if pilihan == "1" :
+        print("\n===== STUDENT LOGIN =====")
+        username = input("Masukkan username: ")
+        # Meminta pengguna memasukkan password
+        password = input("Masukkan password: ")
+        with open("akun.csv", "r", newline="") as file:
+            reader = csv.DictReader(file)
+            berhasil = False
+            for data in reader:
+                if data["Username"] == username and data["Password"] == password:
+                    print("\nLogin berhasil!")
+                    berhasil = True
+                        # berhasil = True
+                        # Masuk ke beranda mahasiswa
+                    beranda_mahasiswa(
+                    data["Nama"],
+                    data["Prodi"],
+                    data["Fakultas"])
+                    break
             # Menghentikan perulangan
             if berhasil == False:
                 print("\nUsername atau password salah!")
+                print("1. Coba Login Kembali")
+                print("2. Kembali ke Student Hub")
+                pilihan = input("Pilih menu (1/2): ")
+                if pilihan == "1":
+                    login_mahasiswa()
+                elif pilihan == "2":
+                    return
+                else:
+                    print("Pilihan tidak tersedia!")
+                    return
+    elif pilihan == "2":
+        print("\n===== FORGOT PASSWORD =====")
+        username = input("Masukkan username: ")
+
+        with open("akun.csv", "r", newline="") as file:
+            reader = csv.DictReader(file)
+            fieldnames = reader.fieldnames
+            data_akun = list(reader)
+        ditemukan = False
+        for data in data_akun:
+            if data["Username"] == username:
+                ditemukan = True
+                print("\nAkun ditemukan!")
+                password_baru = input("Masukkan password baru: ")
+                konfirmasi = input("Ulangi password baru: ")
+
+                if password_baru == konfirmasi and password_baru != "":
+                    data["Password"] = password_baru
+
+                    with open("akun.csv", "w", newline="") as file:
+                        writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction="ignore") 
+                        writer.writeheader()
+                        writer.writerows(data_akun)
+                    print("\nPassword berhasil diganti!")
+                else:
+                    print("\nPassword tidak cocok!")
+
+                break
+        if ditemukan == False:
+            print("\nUsername tidak ditemukan!")
+        # Pilihan 3: Kembali ke menu utama
+    elif pilihan == "3":
+        print("\nKembali ke beranda...")
+        return
+    else:
+        print("\nPilihan tidak tersedia!")
 
 def beranda_mahasiswa(nama, prodi, fakultas):
     # Perulangan agar menu terus ditampilkan
@@ -112,43 +168,61 @@ def todo_list(nama):
         pilihan = input("Pilih menu (1-5): ")
         # Jika memilih menu 1
         if pilihan == "1":
-            print("\n========================================")
-            print("        UNIDAY - ADD NEW TASK")
-            print("          Track Your Daily Tasks")
-            print("========================================")
-            # Meminta data tugas dari mahasiswa
-            tugas = input("Nama Tugas       : ")
-            matkul = input("Mata Kuliah      : ")
-            deskripsi = input("Deskripsi Tugas  : ")
-            deadline = input("Deadline         : ")
-            prioritas = input("Prioritas (Tinggi/Sedang/Rendah): ")
-            # Membuka file untuk menyimpan data
-            with open("todo.csv", "a", newline="") as file:
-                writer = csv.writer(file)
-                # Membuat header jika file masih kosong
-                if file.tell() == 0:
-                    writer.writerow([
-                        "Nama",
-                        "Tugas",
-                        "Mata Kuliah",
-                        "Deskripsi",
-                        "Deadline",
-                        "Prioritas",
-                        "Status"
-                    ])
-                # Menyimpan data tugas ke file CSV
-                writer.writerow([
-                    nama,
-                    tugas,
-                    matkul,
-                    deskripsi,
-                    deadline,
-                    prioritas,
-                    "Belum Selesai"
-                ])
-            # Menampilkan pesan jika tugas berhasil disimpan
-            print("\nTugas berhasil ditambahkan!")
-        # Jika memilih menu 2
+                while True:
+                    print("\n========================================")
+                    print("        UNIDAY - ADD NEW TASK")
+                    print("          Track Your Daily Tasks")
+                    print("========================================")
+                    # Meminta data tugas dari mahasiswa
+                    tugas = input("Nama Tugas       : ")
+                    matkul = input("Mata Kuliah      : ")
+                    deadline = input("Deadline         : ")
+                    prioritas = input("Prioritas (Tinggi/Sedang/Rendah): ")
+                    deskripsi = input("Deskripsi Tugas  : ")
+                    print("(Ketik 'selesai' jika sudah selesai)↓")
+                    deskripsi = " "
+                    while True:
+                            baris = input()
+                            if baris.lower() == "selesai":
+                                break
+                            deskripsi += baris + " "
+                    # Membuka file untuk menyimpan data
+                    with open("todo.csv", "a", newline="") as file:
+                        writer = csv.writer(file)
+                        # Membuat header jika file masih kosong
+                        if file.tell() == 0:
+                            writer.writerow([
+                                "Nama",
+                                "Tugas",
+                                "Mata Kuliah",
+                                "Deadline",
+                                "Prioritas",
+                                "Status",
+                                "Deskripsi",
+                            ])
+                        # Menyimpan data tugas ke file CSV
+                        writer.writerow([
+                            nama,
+                            tugas,
+                            matkul,
+                            deadline,
+                            prioritas,
+                            deskripsi,
+                            "Belum Selesai"
+                        ])
+                    # Menampilkan pesan jika tugas berhasil disimpan
+                    print("Tugas berhasil ditambahkan!")
+                    tambah_lagi = input("Apakah ingin menambahkan tugas lagi? (Ya/Tidak): ").lower()
+                    if tambah_lagi == "ya":
+                        continue
+                    elif tambah_lagi == "tidak":
+                        print("\nKembali ke Beranda UNIDAY...")
+                        break
+                    else:
+                        print("\nPilihan tidak valid!")
+                        break
+
+            # Jika memilih menu 2
         elif pilihan == "2":
             print("UNIDAY - MY TASK LIST")
             print("Track Your Daily Tasks")
@@ -178,8 +252,29 @@ def todo_list(nama):
                             f"{data['Prioritas']:<12} "
                             f"{data['Status']:<15}"
                         )
-                    print("=" * 95)
-                    print("Total Tugas:", len(daftar_tugas))
+                        # Menampilkan deskripsi setiap tugas
+                        print("\n" + "=" * 95)
+                        print("                    DESKRIPSI TUGAS")
+                        print("=" * 95)
+                        for nomor, data in enumerate(daftar_tugas, start=1):
+                            print(f"\n{nomor}. {data['Tugas']}")
+                            deskripsi = data.get("Deskripsi", "")
+                            if deskripsi.strip() == "":
+                                print("   Belum ada deskripsi tugas.")
+                            else:
+                                kata = deskripsi.split()
+                                baris = ""
+
+                                for teks in kata:
+                                    if len(baris) + len(teks) + 1 <= 65:
+                                        baris += teks + " "
+                                    else:
+                                        print("   " + baris)
+                                        baris = teks + " "
+
+                                if baris:
+                                    print("   " + baris)
+                        print("=" * 95)
             except FileNotFoundError:
                 print("\nBelum ada data tugas.")
         # Jika memilih menu 3
@@ -279,7 +374,7 @@ def todo_list(nama):
 # Membuat fungsi login admin
 def login_admin():
     # Menampilkan judul login admin
-    print("\n===== LOGIN ADMIN =====")
+    print("\n===== ADMINISTATOR ACCESS =====")
     # Meminta username admin
     username = input("Masukkan username admin: ")
     # Meminta password admin
@@ -330,10 +425,10 @@ def menu_utama():
         print("      UNIVERSITY DAILY ACTIVITY")
         print("=====================================")
         # Menampilkan pilihan menu
-        print("1. Registrasi Mahasiswa")
-        print("2. Login Mahasiswa")
-        print("3. Login Admin")
-        print("4. Keluar")
+        print("1. Student Registration")
+        print("2. Welcome to Student Space")
+        print("3. Administrator Access")
+        print("4. Exit...")
         pilihan = input("Pilihan menu (1/4): ")
         if pilihan == "1":
             registrasi()
