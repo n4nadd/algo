@@ -37,18 +37,18 @@ def login_mahasiswa():
     with open("akun.csv", "r", newline="") as file:
         reader = csv.DictReader(file)
         berhasil = False
+
         for data in reader:
             if data["Username"] == username and data["Password"] == password:
                 print("\nLogin berhasil!")
+                # berhasil = True
                 # Masuk ke beranda mahasiswa
                 beranda_mahasiswa(
                 data["Nama"],
                 data["Prodi"],
-                data["Fakultas"]
-            )
+                data["Fakultas"])
                 break
             # Menghentikan perulangan
-                break
             if berhasil == False:
                 print("\nUsername atau password salah!")
 
