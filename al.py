@@ -496,8 +496,10 @@ def login_admin():
 def menu_admin():
     while True:
         print("\n===== MENU ADMIN =====")
-        print("1. Lihat data mahasiswa")
-        print("2. Logout")
+        print(" [01] Lihat data mahasiswa")
+        print(" [02] Jadwal Mahasiswa")
+        print(" [03] Data Nilai Mahsiswa")
+        print(" [04] Logout....")  
         pilihan = input("Pilih menu: ")
         if pilihan == "1":
             # Membuka file akun.csv
@@ -517,6 +519,9 @@ def menu_admin():
                 print("-" * 90)
                 print("Jumlah Mahasiswa:", len(daftar_mahasiswa))
         elif pilihan == "2":
+            with open("nilai.csv", "r", newline="", encoding="utf-8-sig") as file:
+                reader = csv.DictReader(file)
+        elif pilihan == "3":
             print("Admin berhasil logout!")
             break
         else:
