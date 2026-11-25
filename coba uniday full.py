@@ -268,12 +268,20 @@ def todo_list(nama):
             print("Pilihan tidak valid!")
 
 # SIMPAN CATATAN
+<<<<<<< HEAD
 def simpan_catatan(matkul, topik, isi):
+=======
+def simpan_catatan(matkul, judul, isi):
+>>>>>>> cff3d66 (Update codingan)
     with open("catatan_matkul.csv", "a", newline="") as file:
         tulis = csv.writer(file)
         if file.tell() == 0:
             tulis.writerow(["Matkul", "Topik", "Isi"])
+<<<<<<< HEAD
         tulis.writerow([matkul, topik, isi])
+=======
+        tulis.writerow([matkul, judul, isi])
+>>>>>>> cff3d66 (Update codingan)
 
 # BACA CATATAN
 def baca_catatan():
@@ -297,7 +305,11 @@ def cari_materi(data, kata_kunci):
             hasil.append(item)
     return hasil
 
+<<<<<<< HEAD
 # CATATAN MATA KULIAH - KOTAK TABEL 1 KOLOM 1 BARIS
+=======
+# CATATAN MATA KULIAH
+>>>>>>> cff3d66 (Update codingan)
 def catatan_matkul():
     pilih = ""
     while pilih != "0":
@@ -312,9 +324,13 @@ def catatan_matkul():
             print("\n--- TAMBAH CATATAN ---")
             print("Keterangan: Matkul | Topik | Isi")
             matkul = input("Nama mata kuliah : ")
-            topik = input("Topik/materi      : ")
+            judul = input("Judul materi      : ")
             isi = input("Isi catatan      : ")
+<<<<<<< HEAD
             simpan_catatan(matkul, topik, isi)
+=======
+            simpan_catatan(matkul, judul, isi)
+>>>>>>> cff3d66 (Update codingan)
             print("Catatan berhasil disimpan ke CSV.")
             print("Matkul: " + matkul + " | Topik: " + topik + " | Isi: " + isi)
         elif pilih == "2":
@@ -326,11 +342,16 @@ def catatan_matkul():
             print("Keterangan: No | Matkul | Topik | Isi (di dalam kotak)")
             for nomor in range(len(data)):
                 item = data[nomor]
+<<<<<<< HEAD
                 print(str(nomor + 1) + ". Matkul: " + item[0] + " | Topik: " + item[1])
                 panjang = len(item[2]) + 4
                 print("+" + "-" * (panjang - 2) + "+")
                 print("| " + item[2] + " |")
                 print("+" + "-" * (panjang - 2) + "+")
+=======
+                print(str(nomor + 1) + ". " + item[0] + " - " + item[1])
+                print("   Catatan: " + item[2])
+>>>>>>> cff3d66 (Update codingan)
             print("Total Catatan : " + str(len(data)))
         elif pilih == "3":
             kata = input("Masukkan kata kunci materi/matkul: ")
@@ -343,11 +364,16 @@ def catatan_matkul():
             print("Keterangan: No | Matkul | Topik | Isi")
             for nomor in range(len(hasil_cari)):
                 item = hasil_cari[nomor]
+<<<<<<< HEAD
                 print(str(nomor + 1) + ". Matkul: " + item[0] + " | Topik: " + item[1])
                 panjang = len(item[2]) + 4
                 print("+" + "-" * (panjang - 2) + "+")
                 print("| " + item[2] + " |")
                 print("+" + "-" * (panjang - 2) + "+")
+=======
+                print(str(nomor + 1) + ". [" + item[0] + "] " + item[1])
+                print("   Isi: " + item[2])
+>>>>>>> cff3d66 (Update codingan)
         elif pilih == "0":
             print("Selesai, keluar program.")
             break
