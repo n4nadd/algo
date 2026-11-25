@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 Nama,NIM,Username,Password,Prodi,Fakultas,Kelas,Status
 Nadia Khodimatul Husna,262410101062,Nad,1234,Sistem Informasi,Fakultas Ilmu Komputer,A,Aktif
 salsa,262410101082,salsa,1245,Sistem Informasi,Fakultas Ilmu Komputer,B,Aktif
 Giselle Clarissa Angeline Wahyudi,262410101047,Giselle162,selle,Sistem Informasi,Fakultas Ilmu Komputer,A,Aktif
+=======
+Nama,NIM,Username,Password,Prodi,Fakultas,Kelas
+Nadia Khodimatul Husna,262410101062,Nad,1234,Sistem Informasi,Fakultas Ilmu Komputer,A
+>>>>>>> f1de99913c45489a148354396d715e4ec5a01248
