@@ -61,7 +61,7 @@ def simpan_jadwal():
         file_tulis.write(jadwal_list[nomor][0] + "," + jadwal_list[nomor][1] + "," + jadwal_list[nomor][2] + "," + jadwal_list[nomor][3] + "," + jadwal_list[nomor][4] + "," + jadwal_list[nomor][5] + "\n")
     file_tulis.close()
 
-# TAMPILKAN JADWAL - JUDUL LENGKAP SESUAI CSV
+# TAMPILKAN JADWAL
 def tampilkan_jadwal(kelas_pilih):
     print("\n===== JADWAL KULIAH - KELAS " + kelas_pilih + " =====")
     print("NO | HARI | MATA KULIAH | JAM | DOSEN | RUANGAN")
@@ -77,7 +77,6 @@ def tampilkan_jadwal(kelas_pilih):
 # REGISTRASI MAHASISWA
 def registrasi():
     print("\n===== REGISTRASI MAHASISWA =====")
-    print("Keterangan: Nama | NIM | Username | Password | Prodi | Fakultas | Kelas")
     nama = input("Masukkan nama lengkap: ")
     nim = input("Masukkan NIM: ")
     username = input("Buat username: ")
@@ -104,11 +103,9 @@ def registrasi():
         writer.writerow([nama, nim, username, password, prodi, fakultas, kelas, "Aktif"])
     print("\nRegistrasi berhasil!")
 
-
 # LOGIN MAHASISWA
 def login_mahasiswa():
     print("\n===== LOGIN MAHASISWA =====")
-    print("Keterangan: Username | Password")
     username = input("Masukkan username: ")
     password = input("Masukkan password: ")
     semua = baca_csv("akun.csv")
@@ -121,7 +118,6 @@ def login_mahasiswa():
                 return
             berhasil = True
             print("\nLogin berhasil!")
-            print("Nama: " + data["Nama"] + " | NIM: " + data["NIM"] + " | Kelas: " + data["Kelas"] + " | Prodi: " + data["Prodi"] + " | Fakultas: " + data["Fakultas"])
             beranda_mahasiswa(data["Nama"], data["Kelas"])
             break
     if berhasil == False:
@@ -136,7 +132,6 @@ def jadwal_kuliah_mahasiswa(kelas):
         notif_list.pop(0)
     while True:
         print("\n--- JADWAL KULIAH - MAHASISWA KELAS " + kelas + " ---")
-        print("Keterangan: Hari | Mata Kuliah | Jam | Dosen | Ruangan")
         print("1. Tampilkan Jadwal")
         print("2. Cari Jadwal")
         print("3. Kembali")
@@ -165,7 +160,6 @@ def todo_list(nama):
         print("          UNIDAY - TO-DO LIST")
         print("       UNIVERSITY DAILY ACTIVITY")
         print("========================================")
-        print("Keterangan: Nama | Tugas | Mata Kuliah | Deskripsi | Deadline | Prioritas | Status")
         print("1. Add New Task")
         print("2. My Task List")
         print("3. Task Checklist")
@@ -178,7 +172,6 @@ def todo_list(nama):
             print("        UNIDAY - ADD NEW TASK")
             print("          Track Your Daily Tasks")
             print("========================================")
-            print("Keterangan: Tugas | Mata Kuliah | Deskripsi | Deadline | Prioritas")
             tugas = input("Nama Tugas       : ")
             matkul = input("Mata Kuliah      : ")
             deskripsi = input("Deskripsi Tugas  : ")
@@ -190,7 +183,6 @@ def todo_list(nama):
                     writer.writerow(["Nama", "Tugas", "Mata Kuliah", "Deskripsi", "Deadline", "Prioritas", "Status"])
                 writer.writerow([nama, tugas, matkul, deskripsi, deadline, prioritas, "Belum Selesai"])
             print("\nTugas berhasil ditambahkan!")
-            print("Nama: " + nama + " | Tugas: " + tugas + " | Matkul: " + matkul + " | Deadline: " + deadline + " | Prioritas: " + prioritas + " | Status: Belum Selesai")
         elif pilihan == "2":
             print("UNIDAY - MY TASK LIST - " + nama)
             print("Track Your Daily Tasks")
@@ -297,7 +289,7 @@ def cari_materi(data, kata_kunci):
             hasil.append(item)
     return hasil
 
-# CATATAN MATA KULIAH - KOTAK NGIKUTIN PANJANG ISI
+# CATATAN MATA KULIAH - KOTAK TABEL 1 KOLOM 1 BARIS
 def catatan_matkul():
     pilih = ""
     while pilih != "0":
@@ -366,51 +358,122 @@ def input_angka(pesan, minimum, maksimum):
         except ValueError:
             print("Masukkan angka yang valid!")
 
-# BACA DATA TRACKER
+# =====================================
+# STUDY TRACKER - PAKAI 1 FILE
+# Study Tracker.csv
+# =====================================
+
+# BACA DATA TRACKER - ADA NAMA, BISA BACA CSV LAMA JUGA
 def baca_data_tracker():
     global nilai_list, ipk_list
     nilai_list = []
     ipk_list = []
     try:
-        with open("nilai.csv", "r", newline="") as file:
+        with open("Study Tracker.csv", "r", newline="") as file:
             reader = csv.reader(file)
             next(reader, None)
             for data in reader:
-                if len(data) == 4:
-                    nilai_list.append([data[0], float(data[1]), float(data[2]), float(data[3])])
-    except:
-        pass
-    try:
-        with open("ipk.csv", "r", newline="") as file:
-            reader = csv.reader(file)
-            next(reader, None)
-            for data in reader:
-                if len(data) == 2:
-                    ipk_list.append([data[0], float(data[1])])
+                # FORMAT BARU - 6 kolom : Jenis Data,Nama,Matkul/Semester,Kuis,UTS,UAS/IPK
+                if len(data) == 6:
+                    if data[0] == "Nilai":
+                        nilai_list.append([data[1], data[2], float(data[3]), float(data[4]), float(data[5])])
+                    elif data[0] == "IPK":
+                        ipk_list.append([data[1], data[2], float(data[5])])
+                # FORMAT LAMA - 5 kolom : Jenis Data,Matkul/Semester,Kuis,UTS,UAS/IPK (gak ada Nama)
+                elif len(data) == 5:
+                    if data[0] == "Nilai":
+                        nilai_list.append(["", data[1], float(data[2]), float(data[3]), float(data[4])])
+                    elif data[0] == "IPK":
+                        ipk_list.append(["", data[1], float(data[4])])
     except:
         pass
 
-# SIMPAN TRACKER
+# SIMPAN TRACKER - ADA NAMA
 def simpan_tracker():
-    with open("nilai.csv", "w", newline="") as file:
+    with open("Study Tracker.csv", "w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["Mata Kuliah", "Kuis", "UTS", "UAS"])
-        writer.writerows(nilai_list)
-    with open("ipk.csv", "w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["Semester", "IPK"])
-        writer.writerows(ipk_list)
+        writer.writerow(["Jenis Data", "Nama", "Mata Kuliah/Semester", "Kuis", "UTS", "UAS/IPK"])
+        for data in nilai_list:
+            writer.writerow(["Nilai"] + data)
+        for data in ipk_list:
+            writer.writerow(["IPK", data[0], data[1], "-", "-", data[2]])
 
-# STUDY TRACKER - ADA NAMA, JUDUL LENGKAP SESUAI CSV
+# HITUNG NILAI AKHIR + HURUF
+def hitung_nilai(kuis, uts, uas):
+    akhir = (kuis * 0.2) + (uts * 0.3) + (uas * 0.5)
+    huruf = "E"
+    if akhir >= 80:
+        huruf = "A"
+    elif akhir >= 70:
+        huruf = "B"
+    elif akhir >= 60:
+        huruf = "C"
+    elif akhir >= 50:
+        huruf = "D"
+    return akhir, huruf
+
+# HITUNG PREDIKAT IPK
+def hitung_predikat(ipk):
+    predikat = "Sangat Kurang, Semangat!"
+    if ipk >= 3.5:
+        predikat = "Sangat Bagus / Cumlaude"
+    elif ipk >= 3.0:
+        predikat = "Bagus"
+    elif ipk >= 2.75:
+        predikat = "Normal / Cukup"
+    elif ipk >= 2.0:
+        predikat = "Kurang"
+    return predikat
+
+# TAMPILKAN STUDY TRACKER 1 MAHASISWA
+def tampilkan_tracker_1_orang(nama_tampil):
+    print("\n========================================")
+    print("NAMA MAHASISWA : " + nama_tampil)
+    print("========================================")
+    print("--- NILAI ---")
+    print("Keterangan: No | Mata Kuliah | Kuis | UTS | UAS | Nilai Akhir | Huruf")
+    ada_nilai = False
+    hitung = 1
+    for nomor in range(len(nilai_list)):
+        # Nama kosong = data lama, tetep ditampilin biar gak ilang
+        if nilai_list[nomor][0] == nama_tampil or nilai_list[nomor][0] == "":
+            matkul = nilai_list[nomor][1]
+            kuis = nilai_list[nomor][2]
+            uts = nilai_list[nomor][3]
+            uas = nilai_list[nomor][4]
+            akhir, huruf = hitung_nilai(kuis, uts, uas)
+            bulat = akhir // 1
+            sisa = round(akhir % 1, 2)
+            print(str(hitung) + ". " + matkul + " | Kuis: " + str(kuis) + " | UTS: " + str(uts) + " | UAS: " + str(uas) + " | Nilai Akhir: " + str(round(akhir, 2)) + " (bulat " + str(bulat) + " sisa " + str(sisa) + ")" + " | Huruf: " + huruf)
+            ada_nilai = True
+            hitung = hitung + 1
+    if not ada_nilai:
+        print("Belum ada nilai!")
+    print("--- RIWAYAT IPK ---")
+    print("Keterangan: No | Semester | IPK | Predikat")
+    ada_ipk = False
+    hitung_ipk = 1
+    for nomor in range(len(ipk_list)):
+        if ipk_list[nomor][0] == nama_tampil or ipk_list[nomor][0] == "":
+            semester = ipk_list[nomor][1]
+            ipk = ipk_list[nomor][2]
+            predikat = hitung_predikat(ipk)
+            print(str(hitung_ipk) + ". Semester " + semester + " | IPK: " + str(ipk) + " | Predikat: " + predikat)
+            ada_ipk = True
+            hitung_ipk = hitung_ipk + 1
+    if not ada_ipk:
+        print("Belum input IPK!")
+
+# STUDY TRACKER MAHASISWA - CUMA PUNYA DIA SENDIRI
 def study_tracker(nama):
     baca_data_tracker()
     while True:
         print("\n========== STUDY TRACKER ==========")
         print("Nama Mahasiswa : " + nama)
-        print("Keterangan Nilai: Mata Kuliah | Kuis | UTS | UAS | Nilai Akhir | Huruf")
-        print("Keterangan IPK: Semester | IPK | Predikat")
+        print("Keterangan Nilai: Nama | Mata Kuliah | Kuis | UTS | UAS | Nilai Akhir | Huruf")
+        print("Keterangan IPK: Nama | Semester | IPK | Predikat")
         print("====================================")
-        print("1. Lihat Nilai dan IPK")
+        print("1. Lihat Nilai dan IPK Saya")
         print("2. Input Nilai (Kuis, UTS, UAS)")
         print("3. Input IPK (Input Sendiri)")
         print("4. Ubah Nilai")
@@ -418,49 +481,7 @@ def study_tracker(nama):
         print("6. Kembali")
         pilih = input("Pilih menu: ")
         if pilih == "1":
-            print("\n========== NILAI MAHASISWA - " + nama + " ==========")
-            print("NO | MATA KULIAH | KUIS | UTS | UAS | NILAI AKHIR | HURUF")
-            print("-" * 70)
-            if len(nilai_list) == 0:
-                print("Belum ada nilai!")
-            else:
-                for nomor in range(len(nilai_list)):
-                    matkul = nilai_list[nomor][0]
-                    kuis = nilai_list[nomor][1]
-                    uts = nilai_list[nomor][2]
-                    uas = nilai_list[nomor][3]
-                    akhir = (kuis * 0.2) + (uts * 0.3) + (uas * 0.5)
-                    bulat = akhir // 1
-                    sisa = round(akhir % 1, 2)
-                    huruf = "E"
-                    if akhir >= 80:
-                        huruf = "A"
-                    elif akhir >= 70:
-                        huruf = "B"
-                    elif akhir >= 60:
-                        huruf = "C"
-                    elif akhir >= 50:
-                        huruf = "D"
-                    print(str(nomor + 1) + ". " + matkul + " | Kuis: " + str(kuis) + " | UTS: " + str(uts) + " | UAS: " + str(uas) + " | Nilai Akhir: " + str(round(akhir, 2)) + " (bulat " + str(bulat) + " sisa " + str(sisa) + ")" + " | Huruf: " + huruf)
-            print("\n========== RIWAYAT IPK - " + nama + " ==========")
-            print("NO | SEMESTER | IPK | PREDIKAT")
-            print("-" * 50)
-            if len(ipk_list) == 0:
-                print("Belum input IPK!")
-            else:
-                for nomor in range(len(ipk_list)):
-                    semester = ipk_list[nomor][0]
-                    ipk = ipk_list[nomor][1]
-                    predikat = "Sangat Kurang, Semangat!"
-                    if ipk >= 3.5:
-                        predikat = "Sangat Bagus / Cumlaude"
-                    elif ipk >= 3.0:
-                        predikat = "Bagus"
-                    elif ipk >= 2.75:
-                        predikat = "Normal / Cukup"
-                    elif ipk >= 2.0:
-                        predikat = "Kurang"
-                    print(str(nomor + 1) + ". Semester " + semester + " | IPK: " + str(ipk) + " | Predikat: " + predikat)
+            tampilkan_tracker_1_orang(nama)
         elif pilih == "2":
             print("\n--- INPUT NILAI ---")
             print("Keterangan: Mata Kuliah | Kuis (0-100) | UTS (0-100) | UAS (0-100)")
@@ -468,7 +489,7 @@ def study_tracker(nama):
             kuis = input_angka("Nilai Kuis: ", 0, 100)
             uts = input_angka("Nilai UTS: ", 0, 100)
             uas = input_angka("Nilai UAS: ", 0, 100)
-            nilai_list.append([matkul, kuis, uts, uas])
+            nilai_list.append([nama, matkul, kuis, uts, uas])
             simpan_tracker()
             print("Nilai berhasil disimpan!")
             print("Nama: " + nama + " | Matkul: " + matkul + " | Kuis: " + str(kuis) + " | UTS: " + str(uts) + " | UAS: " + str(uas))
@@ -477,24 +498,33 @@ def study_tracker(nama):
             print("Keterangan: Semester | IPK (0.00 - 4.00)")
             semester = input("Semester ke-berapa: ")
             ipk = input_angka("Masukkan IPK (0.00 - 4.00): ", 0, 4)
-            ipk_list.append([semester, ipk])
+            ipk_list.append([nama, semester, ipk])
             simpan_tracker()
             print("IPK berhasil disimpan!")
             print("Nama: " + nama + " | Semester: " + semester + " | IPK: " + str(ipk))
         elif pilih == "4":
-            if len(nilai_list) == 0:
+            daftar_saya = []
+            for data in nilai_list:
+                if data[0] == nama or data[0] == "":
+                    daftar_saya.append(data)
+            if len(daftar_saya) == 0:
                 print("Belum ada nilai yang bisa diubah!")
             else:
                 print("\nDaftar Mata Kuliah - " + nama + ":")
                 print("NO | MATA KULIAH | KUIS | UTS | UAS")
-                for nomor in range(len(nilai_list)):
-                    print(str(nomor + 1) + " . " + nilai_list[nomor][0] + " | Kuis: " + str(nilai_list[nomor][1]) + " | UTS: " + str(nilai_list[nomor][2]) + " | UAS: " + str(nilai_list[nomor][3]))
+                for nomor in range(len(daftar_saya)):
+                    print(str(nomor + 1) + " . " + daftar_saya[nomor][1] + " | Kuis: " + str(daftar_saya[nomor][2]) + " | UTS: " + str(daftar_saya[nomor][3]) + " | UAS: " + str(daftar_saya[nomor][4]))
                 try:
-                    nomor = int(input("Nomor yang mau diubah: ")) - 1
-                    if nomor >= 0 and nomor < len(nilai_list):
-                        nilai_list[nomor][1] = input_angka("Kuis baru: ", 0, 100)
-                        nilai_list[nomor][2] = input_angka("UTS baru: ", 0, 100)
-                        nilai_list[nomor][3] = input_angka("UAS baru: ", 0, 100)
+                    nomor_pilih = int(input("Nomor yang mau diubah: ")) - 1
+                    if nomor_pilih >= 0 and nomor_pilih < len(daftar_saya):
+                        target = daftar_saya[nomor_pilih]
+                        for data in nilai_list:
+                            if data == target:
+                                data[0] = nama
+                                data[2] = input_angka("Kuis baru: ", 0, 100)
+                                data[3] = input_angka("UTS baru: ", 0, 100)
+                                data[4] = input_angka("UAS baru: ", 0, 100)
+                                break
                         simpan_tracker()
                         print("Nilai berhasil diubah!")
                     else:
@@ -502,17 +532,21 @@ def study_tracker(nama):
                 except ValueError:
                     print("Masukkan nomor yang valid!")
         elif pilih == "5":
-            if len(nilai_list) == 0:
+            daftar_saya = []
+            for data in nilai_list:
+                if data[0] == nama or data[0] == "":
+                    daftar_saya.append(data)
+            if len(daftar_saya) == 0:
                 print("Belum ada nilai yang bisa dihapus!")
             else:
                 print("\nDaftar Mata Kuliah - " + nama + ":")
                 print("NO | MATA KULIAH | KUIS | UTS | UAS")
-                for nomor in range(len(nilai_list)):
-                    print(str(nomor + 1) + " . " + nilai_list[nomor][0] + " | Kuis: " + str(nilai_list[nomor][1]) + " | UTS: " + str(nilai_list[nomor][2]) + " | UAS: " + str(nilai_list[nomor][3]))
+                for nomor in range(len(daftar_saya)):
+                    print(str(nomor + 1) + " . " + daftar_saya[nomor][1] + " | Kuis: " + str(daftar_saya[nomor][2]) + " | UTS: " + str(daftar_saya[nomor][3]) + " | UAS: " + str(daftar_saya[nomor][4]))
                 try:
-                    nomor = int(input("Nomor yang mau dihapus: ")) - 1
-                    if nomor >= 0 and nomor < len(nilai_list):
-                        nilai_list.pop(nomor)
+                    nomor_pilih = int(input("Nomor yang mau dihapus: ")) - 1
+                    if nomor_pilih >= 0 and nomor_pilih < len(daftar_saya):
+                        nilai_list.remove(daftar_saya[nomor_pilih])
                         simpan_tracker()
                         print("Nilai berhasil dihapus!")
                     else:
@@ -770,21 +804,14 @@ def menu_admin():
             atur_jadwal_admin()
         elif pilihan == "3":
             print("\n===== STUDY TRACKER MAHASISWA (ADMIN LIHAT SAJA) =====")
-            print("Keterangan Nilai: Mata Kuliah | Kuis | UTS | UAS")
-            print("Keterangan IPK: Semester | IPK")
+            print("Keterangan: Per Mahasiswa - Nama | Nilai | IPK")
             baca_data_tracker()
-            if len(nilai_list) == 0:
-                print("Belum ada nilai.")
+            semua_mhs = baca_csv("akun.csv")
+            if len(semua_mhs) == 0:
+                print("Belum ada mahasiswa.")
             else:
-                print("NO | MATA KULIAH | KUIS | UTS | UAS")
-                for nomor in range(len(nilai_list)):
-                    print(str(nomor + 1) + ". " + nilai_list[nomor][0] + " | Kuis: " + str(nilai_list[nomor][1]) + " | UTS: " + str(nilai_list[nomor][2]) + " | UAS: " + str(nilai_list[nomor][3]))
-            if len(ipk_list) == 0:
-                print("Belum ada IPK.")
-            else:
-                print("NO | SEMESTER | IPK")
-                for nomor in range(len(ipk_list)):
-                    print(str(nomor + 1) + ". Semester " + ipk_list[nomor][0] + " | IPK: " + str(ipk_list[nomor][1]))
+                for data_mhs in semua_mhs:
+                    tampilkan_tracker_1_orang(data_mhs["Nama"])
         elif pilihan == "4":
             semua = baca_csv("akun.csv")
             urut = urutkan_mahasiswa(semua)
@@ -817,7 +844,6 @@ def menu_utama():
         print("               UNIDAY                ")
         print("      UNIVERSITY DAILY ACTIVITY")
         print("=====================================")
-        print("Keterangan: 1 Registrasi | 2 Login Mahasiswa | 3 Login Admin | 4 Keluar")
         print("1. Registrasi Mahasiswa")
         print("2. Login Mahasiswa")
         print("3. Login Admin")
