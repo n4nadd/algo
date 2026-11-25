@@ -9,6 +9,8 @@ import os
 nilai_list = []
 ipk_list = []
 
+FILE_CSV = "Study Tracker.csv"
+
 # =====================================
 # MEMBACA DATA CSV
 # =====================================
@@ -16,48 +18,55 @@ ipk_list = []
 def baca_data():
     global nilai_list, ipk_list
 
-    if os.path.exists("nilai.csv"):
-        with open("nilai.csv", "r", newline="", encoding="utf-8") as file:
+    if os.path.exists(FILE_CSV):
+        with open(FILE_CSV, "r", newline="", encoding="utf-8") as file:
             reader = csv.reader(file)
             next(reader, None)
 
             for data in reader:
-                if len(data) == 4:
-                    nilai_list.append([
-                        data[0],
-                        float(data[1]),
-                        float(data[2]),
-                        float(data[3])
-                    ])
+                if len(data) == 5:
 
-    if os.path.exists("ipk.csv"):
-        with open("ipk.csv", "r", newline="", encoding="utf-8") as file:
-            reader = csv.reader(file)
-            next(reader, None)
+                    if data[0] == "Nilai":
+                        nilai_list.append([
+                            data[1],
+                            float(data[2]),
+                            float(data[3]),
+                            float(data[4])
+                        ])
 
-            for data in reader:
-                if len(data) == 2:
-                    ipk_list.append([
-                        data[0],
-                        float(data[1])
-                    ])
-
+                    elif data[0] == "IPK":
+                        ipk_list.append([
+                            data[1],
+                            float(data[4])
+                        ])
 
 # =====================================
 # MENYIMPAN DATA CSV
 # =====================================
 
 def simpan_semua():
-    with open("nilai.csv", "w", newline="", encoding="utf-8") as file:
+    with open(FILE_CSV, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow(["Mata Kuliah", "Kuis", "UTS", "UAS"])
-        writer.writerows(nilai_list)
 
-    with open("ipk.csv", "w", newline="", encoding="utf-8") as file:
-        writer = csv.writer(file)
-        writer.writerow(["Semester", "IPK"])
-        writer.writerows(ipk_list)
+        writer.writerow([
+            "Jenis Data",
+            "Mata Kuliah/Semester",
+            "Kuis",
+            "UTS",
+            "UAS/IPK"
+        ])
 
+        for data in nilai_list:
+            writer.writerow(["Nilai"] + data)
+
+        for data in ipk_list:
+            writer.writerow([
+                "IPK",
+                data[0],
+                "-",
+                "-",
+                data[1]
+            ])
 
 # =====================================
 # FUNGSI INPUT ANGKA
@@ -76,7 +85,6 @@ def input_angka(pesan, minimum, maksimum):
         except ValueError:
             print("Masukkan angka yang valid!")
 
-
 # =====================================
 # STUDY TRACKER
 # =====================================
@@ -93,10 +101,7 @@ def study_tracker():
 
         pilih = input("Pilih menu: ")
 
-        # ---------------------------------
         # 1. LIHAT NILAI DAN IPK
-        # ---------------------------------
-
         if pilih == "1":
             print("\n========== NILAI MAHASISWA ==========")
 
@@ -157,10 +162,7 @@ def study_tracker():
                         "|", predikat
                     )
 
-        # ---------------------------------
         # 2. INPUT NILAI
-        # ---------------------------------
-
         elif pilih == "2":
             matkul = input("Nama Mata Kuliah: ")
 
@@ -173,10 +175,7 @@ def study_tracker():
             simpan_semua()
             print("Nilai berhasil disimpan!")
 
-        # ---------------------------------
         # 3. INPUT IPK
-        # ---------------------------------
-
         elif pilih == "3":
             semester = input("Semester ke-berapa: ")
             ipk = input_angka("Masukkan IPK (0.00 - 4.00): ", 0, 4)
@@ -186,10 +185,7 @@ def study_tracker():
             simpan_semua()
             print("IPK berhasil disimpan!")
 
-        # ---------------------------------
         # 4. UBAH NILAI
-        # ---------------------------------
-
         elif pilih == "4":
             if len(nilai_list) == 0:
                 print("Belum ada nilai yang bisa diubah!")
@@ -215,10 +211,7 @@ def study_tracker():
                 except ValueError:
                     print("Masukkan nomor yang valid!")
 
-        # ---------------------------------
         # 5. HAPUS NILAI
-        # ---------------------------------
-
         elif pilih == "5":
             if len(nilai_list) == 0:
                 print("Belum ada nilai yang bisa dihapus!")
@@ -242,17 +235,13 @@ def study_tracker():
                 except ValueError:
                     print("Masukkan nomor yang valid!")
 
-        # ---------------------------------
         # 6. KEMBALI
-        # ---------------------------------
-
         elif pilih == "6":
             print("Kembali ke menu utama...")
             break
 
         else:
             print("Pilihan tidak tersedia!")
-
 
 # =====================================
 # PROGRAM UTAMA
