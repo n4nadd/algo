@@ -38,9 +38,9 @@ def bongkar_baris(baris):
                 data_baris[kolom] = data_baris[kolom] + huruf
     return data_baris
 
-# BACA JADWAL.TXT
+# BACA JADWAL.CSV
 try:
-    file_buka = open("jadwal.txt", "r")
+    file_buka = open("jadwal.csv", "r")
     for baris in file_buka:
         if baris == "" or baris == "\n":
             continue
@@ -55,7 +55,7 @@ except:
 
 # SIMPAN JADWAL
 def simpan_jadwal():
-    file_tulis = open("jadwal.txt", "w")
+    file_tulis = open("jadwal.csv", "w")
     for nomor in range(len(jadwal_list)):
         file_tulis.write(jadwal_list[nomor][0] + "|" + jadwal_list[nomor][1] + "|" + jadwal_list[nomor][2] + "|" + jadwal_list[nomor][3] + "|" + jadwal_list[nomor][4] + "|" + jadwal_list[nomor][5] + "\n")
     file_tulis.close()
@@ -145,7 +145,7 @@ def jadwal_kuliah_mahasiswa(kelas):
             tampilkan_jadwal(kelas)
         elif pilih == "2":
             tampilkan_jadwal(kelas)
-            cari = input("\nCari matkul / dosen / ruangan: ")
+            cari = input("\nCari matkul / dosen / ruangan: ").title()
             ditemukan = False
             for nomor in range(len(jadwal_list)):
                 if jadwal_list[nomor][0] == kelas and (cari in jadwal_list[nomor][2] or cari in jadwal_list[nomor][4] or cari in jadwal_list[nomor][5]):

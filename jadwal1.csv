@@ -1,0 +1,11 @@
+Kelas,Hari,Mata Kuliah,Jam,Dosen,Ruangan
+A,Senin,Algoritma dan Pemrograman,08.00-09.40,Bu Rina,Lab 1
+B,Senin,Pendidikan Pancasila,10.00-11.40,Pak Budi,Ruang 201
+A,Selasa,Basis Data,08.00-09.40,Bu Sinta,Ruang 202
+C,Senin,Algoritma dan Pemrograman,08.00-09.40,Bu Rina,Lab 2
+A,Senin,Etika Profesi,07.00-08.40,Bapak Fahrobby,A 3.4
+kelas,hari,jam,mata_kuliah,dosen,ruangan
+A,Senin,08.00-09.40,Algoritma dan Pemrograman,Bu Rina,Lab 1
+A,Senin,10.00-11.40,Pendidikan Pancasila,Pak Budi,Ruang 201
+A,Selasa,08.00-09.40,Basis Data,Bu Sinta,Ruang 202
+B,Senin,08.00-09.40,Algoritma dan Pemrograman,Bu Rina,Lab 2
