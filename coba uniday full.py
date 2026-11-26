@@ -62,14 +62,24 @@ def simpan_jadwal():
     file_tulis.close()
 
 # TAMPILKAN JADWAL
+
+# TAMPILKAN JADWAL
 def tampilkan_jadwal(kelas_pilih):
     print("\n===== JADWAL KULIAH - KELAS " + kelas_pilih + " =====")
-    print("NO | HARI | MATA KULIAH | JAM | DOSEN | RUANGAN")
-    print("-" * 70)
+    hari_list = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"]
     ada_jadwal = False
-    for nomor in range(len(jadwal_list)):
-        if jadwal_list[nomor][0] == kelas_pilih:
-            print(str(nomor + 1) + ". " + jadwal_list[nomor][1] + " | " + jadwal_list[nomor][2] + " | " + jadwal_list[nomor][3] + " | " + jadwal_list[nomor][4] + " | " + jadwal_list[nomor][5])
+    for hari in hari_list:
+        data_hari = []
+        for data in jadwal_list:
+            if data[0] == kelas_pilih and data[1].lower() == hari.lower():
+                data_hari.append(data)
+        if len(data_hari) > 0:
+            print("\n" + hari.upper())
+            print("-" * 80)
+            print(f"{'No':<4} {'Mata Kuliah':<30} {'Jam':<15} {'Dosen':<18} {'Ruangan'}")
+            print("-" * 80)
+            for nomor, data in enumerate(data_hari, start=1):
+                print(f"{nomor:<4} {data[2]:<30} {data[3]:<15} {data[4]:<18} {data[5]}")
             ada_jadwal = True
     if not ada_jadwal:
         print("Belum ada jadwal! Tunggu admin input.")
