@@ -780,7 +780,6 @@ def menu_admin():
             print("\n" + "=" * 92)
             print("DATA MAHASISWA UNIDAY - SEMUA KELAS")
             print("=" * 92)
-            print("Keterangan: No | Nama | NIM | Username | Kelas | Prodi | Fakultas | Status")
             print("No | Nama | NIM | Username | Kelas | Prodi | Fakultas | Status")
             print("-" * 90)
             for nomor in range(len(urut)):
@@ -819,7 +818,6 @@ def menu_admin():
                 print("Belum ada mahasiswa.")
             else:
                 print("\n===== KELUARKAN MAHASISWA =====")
-                print("Keterangan: No | Nama | NIM | Kelas | Status")
                 for nomor in range(len(urut)):
                     data = urut[nomor]
                     print(str(nomor + 1) + ". " + data["Nama"] + " - NIM: " + data["NIM"] + " - Kelas " + data["Kelas"] + " - " + data["Status"])
