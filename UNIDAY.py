@@ -1,216 +1,829 @@
-# =================================================
-# UNIDAY - JADWAL KULIAH
-# Aplikasi penjadwal kuliah Senin sampai Jumat
-# Data disimpan di jadwal.txt
-# Format data: Hari|Matkul|Jam|Dosen|Ruangan
-# =================================================
+import csv
 
-is_jalan = True
-
-# ===== LIST =====
-# [Hari, Matkul, Jam, Dosen, Ruangan]
 jadwal_list = []
+notif_list = []
+nilai_list = []
+ipk_list = []
 
-# ===== FUNGSI MEMBACA SATU BARIS DATA =====
-# Memisahkan data berdasarkan karakter "|"
-def bongkar_baris(baris):
-    hasil = ["", "", "", "", ""]
-    pos = 0
-    for i in range(len(baris)):
-        h = baris[i]
-        if h == "|":
-            pos = pos + 1
-        elif h == "\n":
-            pass
-        else:
-            if pos < 5:
-                hasil[pos] = hasil[pos] + h
+def tengah(teks, lebar):
+    t = str(teks)
+    if len(t) >= lebar:
+        return t[:lebar]
+    sisa = lebar - len(t)
+    kiri = sisa // 2
+    kanan = sisa - kiri
+    return (" " * kiri) + t + (" " * kanan)
+
+def baca_csv(nama_file):
+    hasil = []
+    try:
+        with open(nama_file, "r", newline="") as file:
+            reader = csv.DictReader(file)
+            for data in reader:
+                hasil.append(data)
+    except FileNotFoundError:
+        hasil = []
     return hasil
 
-# ===== FUNGSI INPUT NOMOR =====
-# Memastikan input hanya angka dan dalam rentang yang ada
-def input_nomor(pesan, maksimal):
-    while True:
-        teks = input(pesan)
-        if teks == "":
-            print("Harus input angka ya! Coba lagi.")
-            continue
-        ok = True
-        for i in range(len(teks)):
-            if teks[i] < "0" or teks[i] > "9":
-                ok = False
-        if ok == False:
-            print("Harus input angka ya! Coba lagi.")
-            continue
-        angka = int(teks)
-        if angka < 0 or angka >= maksimal:
-            print("Nomor gak ada! Coba lagi.")
-            continue
-        return angka
+def tulis_csv(nama_file, kolom, semua_data):
+    with open(nama_file, "w", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=kolom)
+        writer.writeheader()
+        writer.writerows(semua_data)
 
-# ===== FILE HANDLING: BACA jadwal.txt =====
+def input_angka(pesan, minimum, maksimum):
+    while True:
+        try:
+            angka = float(input(pesan))
+            if angka >= minimum and angka <= maksimum:
+                return angka
+            print("Input harus antara " + str(minimum) + " sampai " + str(maksimum))
+        except ValueError:
+            print("Masukkan angka yang valid!")
+
+# 1. JADWAL KULIAH
+def urutan_hari(hari):
+    if hari == "Senin":
+        return 0
+    if hari == "Selasa":
+        return 1
+    if hari == "Rabu":
+        return 2
+    if hari == "Kamis":
+        return 3
+    if hari == "Jumat":
+        return 4
+    return 5
+
+def jadwal_urut_kelas(kelas_pilih):
+    hasil = []
+    for data in jadwal_list:
+        if data[0] == kelas_pilih:
+            hasil.append(data)
+    for i in range(len(hasil)):
+        for j in range(len(hasil) - 1):
+            if urutan_hari(hasil[j][1]) > urutan_hari(hasil[j + 1][1]):
+                temp = hasil[j]
+                hasil[j] = hasil[j + 1]
+                hasil[j + 1] = temp
+    return hasil
+
+def bongkar_baris(baris):
+    data_baris = ["", "", "", "", "", ""]
+    kolom = 0
+    for huruf in baris:
+        if huruf == "|" or huruf == ",":
+            kolom = kolom + 1
+        elif huruf == "\n":
+            pass
+        elif kolom < 6:
+            data_baris[kolom] = data_baris[kolom] + huruf
+    return data_baris
+
 try:
-    file_buka = open("jadwal.txt", "r")
+    file_buka = open("jadwal.csv", "r")
     for baris in file_buka:
         if baris == "" or baris == "\n":
             continue
         pisah = bongkar_baris(baris)
-        if pisah[1] != "":
+        if pisah[0] == "Kelas":
+            continue
+        if pisah[2] != "":
             jadwal_list.append(pisah)
     file_buka.close()
 except:
     jadwal_list = []
 
-# ===== FILE HANDLING: SIMPAN jadwal.txt =====
-def simpan_semua():
-    file_tulis = open("jadwal.txt", "w")
-    for j in range(len(jadwal_list)):
-        file_tulis.write(jadwal_list[j][0] + "|" + jadwal_list[j][1] + "|" + jadwal_list[j][2] + "|" + jadwal_list[j][3] + "|" + jadwal_list[j][4] + "\n")
+def simpan_jadwal():
+    file_tulis = open("jadwal.csv", "w")
+    file_tulis.write("Kelas,Hari,Mata Kuliah,Jam,Dosen,Ruangan\n")
+    for nomor in range(len(jadwal_list)):
+        d = jadwal_list[nomor]
+        file_tulis.write(d[0] + "," + d[1] + "," + d[2] + "," + d[3] + "," + d[4] + "," + d[5] + "\n")
     file_tulis.close()
 
-print("===== JADWAL KULIAH KAMU =====")
-if len(jadwal_list) == 0:
-    print("Belum ada jadwal! Input dulu di menu 1.")
-else:
+def tampilkan_jadwal(kelas_pilih):
+    print("\nJADWAL KULIAH - KELAS " + kelas_pilih)
+    urut = jadwal_urut_kelas(kelas_pilih)
+    if len(urut) == 0:
+        print("Belum ada jadwal! Tunggu admin input.")
+        return urut
     hari_list = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"]
     for hari in hari_list:
-        print("\n-- " + hari + " --")
         ada = False
-        for j in range(len(jadwal_list)):
-            if jadwal_list[j][0] == hari:
-                print(jadwal_list[j][1] + " | " + jadwal_list[j][2] + " | " + jadwal_list[j][3] + " | " + jadwal_list[j][4])
+        for data in urut:
+            if data[1] == hari:
                 ada = True
-        if not ada:
-            print("(Libur / Kosong)")
+                break
+        if ada:
+            print("\n-- " + hari + " --")
+            no_per_hari = 1
+            for data in urut:
+                if data[1] == hari:
+                    print(str(no_per_hari) + ". " + data[2] + " | " + data[3] + " | " + data[4] + " | " + data[5])
+                    no_per_hari = no_per_hari + 1
+    return urut
 
-# ===== MENU UTAMA =====
-while is_jalan:
-    print("\n===== MENU UTAMA =====")
-    print("1. Jadwal Kuliah")
-    print("2. Catatan Matkul")
-    print("3. To Do List")
-    print("4. Study Tracker")
-    print("5. Keluar")
-    print("6. Hapus Akun / Reset Dari Nol")
-    pilih = input("Pilih: ")
+def pilih_jadwal_per_hari(kelas_pilih):
+    hari_list = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"]
+    for i in range(len(hari_list)):
+        print(str(i + 1) + ". " + hari_list[i])
+    nomor_hari = int(input("Pilih hari (1-5): ")) - 1
+    if nomor_hari < 0 or nomor_hari >= len(hari_list):
+        print("Nomor hari salah!")
+        return None
+    hari_pilih = hari_list[nomor_hari]
+    urut = jadwal_urut_kelas(kelas_pilih)
+    daftar_hari = []
+    for data in urut:
+        if data[1] == hari_pilih:
+            daftar_hari.append(data)
+    if len(daftar_hari) == 0:
+        print("Gak ada jadwal di hari " + hari_pilih)
+        return None
+    print("\nJadwal hari " + hari_pilih + ":")
+    for i in range(len(daftar_hari)):
+        print(str(i + 1) + ". " + daftar_hari[i][2] + " | " + daftar_hari[i][3] + " | " + daftar_hari[i][4] + " | " + daftar_hari[i][5])
+    nomor = int(input("Nomor di hari " + hari_pilih + ": ")) - 1
+    if nomor < 0 or nomor >= len(daftar_hari):
+        print("Nomor salah!")
+        return None
+    return daftar_hari[nomor]
 
-    # ---------- 1. JADWAL KULIAH ----------
-    if pilih == "1":
-        while True:
-            print("\n--- JADWAL KULIAH ---")
-            print("1. Tampilkan Jadwal")
-            print("2. Masukkan Jadwal (Senin-Jumat)")
-            print("3. Tambah Jadwal (Baru/Pindahan)")
-            print("4. Cari Jadwal")
-            print("5. Ubah Jadwal")
-            print("6. Hapus Jadwal")
-            print("7. Kembali")
-            p = input("Pilih: ")
+def cari_dan_tampilkan_jadwal(kelas_pilih, cari):
+    urut = jadwal_urut_kelas(kelas_pilih)
+    ditemukan = False
+    for data in urut:
+        if cari in data[2] or cari in data[4] or cari in data[5]:
+            print(data[1] + " | " + data[2] + " | " + data[3] + " | " + data[4] + " | " + data[5])
+            ditemukan = True
+    if not ditemukan:
+        print("Gak ketemu!")
 
-            if p == "1":
-                hari_list = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"]
-                for hari in hari_list:
-                    print("\n-- " + hari + " --")
-                    ada = False
-                    for j in range(len(jadwal_list)):
-                        if jadwal_list[j][0] == hari:
-                            print(str(j) + ". " + jadwal_list[j][1] + " | " + jadwal_list[j][2] + " | " + jadwal_list[j][3] + " | " + jadwal_list[j][4])
-                            ada = True
-                    if not ada:
-                        print("(Kosong)")
+def jadwal_kuliah_mahasiswa(kelas):
+    if len(notif_list) > 0:
+        print("\nPERHATIKAN!! ADA PERUBAHAN JADWAL")
+        notif_list.pop(0)
+    while True:
+        print("\n--- JADWAL KULIAH - MAHASISWA KELAS " + kelas + " ---")
+        print("1. Tampilkan Jadwal")
+        print("2. Cari Jadwal")
+        print("3. Kembali")
+        pilih = input("Pilih: ")
+        if pilih == "1":
+            tampilkan_jadwal(kelas)
+        elif pilih == "2":
+            tampilkan_jadwal(kelas)
+            cari = input("\nCari matkul / dosen / ruangan: ")
+            cari_dan_tampilkan_jadwal(kelas, cari)
+        elif pilih == "3":
+            break
+        else:
+            print("Pilihan tidak valid!")
 
-            elif p == "2":
-                hari_list = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"]
-                for hari in hari_list:
-                    print("\n== " + hari + " ==")
-                    while True:
-                        matkul = input("Matkul (ketik 'skip' kalau libur): ")
-                        if matkul.lower() == "skip" or matkul == "":
-                            break
-                        jam = input("Jam: ")
-                        dosen = input("Dosen: ")
-                        ruangan = input("Ruangan: ")
-                        jadwal_list.append([hari, matkul, jam, dosen, ruangan])
-                        lagi = input("Ada jadwal lagi di " + hari + "? (y/n): ")
-                        if not (lagi.lower() == "y"):
-                            break
-                simpan_semua()
-                print("Jadwal tersimpan!")
+# 2. CATATAN MATA KULIAH
+def simpan_catatan(matkul, topik, isi):
+    with open("catatan_matkul.csv", "a", newline="") as file:
+        tulis = csv.writer(file)
+        if file.tell() == 0:
+            tulis.writerow(["Matkul", "Topik", "Isi"])
+        tulis.writerow([matkul, topik, isi])
 
-            elif p == "3":
-                print("\n--- TAMBAH JADWAL BARU ---")
-                hari_list = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"]
-                for h in range(len(hari_list)):
-                    print(str(h) + ". " + hari_list[h])
-                nomor_hari = int(input("Nomor hari: "))
-                if nomor_hari >= 0 and nomor_hari < len(hari_list):
-                    hari_pilih = hari_list[nomor_hari]
-                    print("\nJadwal yang udah ada di " + hari_pilih + ":")
-                    ada = False
-                    for j in range(len(jadwal_list)):
-                        if jadwal_list[j][0] == hari_pilih:
-                            print("- " + jadwal_list[j][1] + " | " + jadwal_list[j][2] + " | " + jadwal_list[j][3] + " | " + jadwal_list[j][4])
-                            ada = True
-                    if not ada:
-                        print("(Masih kosong)")
-                    print("\nIsi jadwal baru:")
-                    matkul = input("Matkul baru: ")
+def baca_catatan():
+    list_catatan = []
+    try:
+        with open("catatan_matkul.csv", "r", newline="") as file:
+            baca = csv.reader(file)
+            next(baca, None)
+            for row in baca:
+                if len(row) == 3:
+                    list_catatan.append([row[0], row[1], row[2]])
+    except FileNotFoundError:
+        list_catatan = []
+    return list_catatan
+
+def cari_materi(data, kata_kunci):
+    hasil = []
+    for item in data:
+        if kata_kunci in item[0] or kata_kunci in item[1] or kata_kunci in item[2]:
+            hasil.append(item)
+    return hasil
+
+def tampilkan_catatan(data, judul_tabel):
+    print("\n" + judul_tabel)
+    for nomor in range(len(data)):
+        item = data[nomor]
+        print(str(nomor + 1) + ". " + item[0] + " | " + item[1] + " | " + item[2])
+
+def catatan_matkul():
+    pilih = ""
+    while pilih != "0":
+        print("\n===== CATATAN MATA KULIAH =====")
+        print("1. Tambah Catatan Matkul")
+        print("2. Lihat Semua Catatan")
+        print("3. Cari Materi")
+        print("0. Keluar")
+        pilih = input("Pilih menu: ")
+        if pilih == "1":
+            print("\n--- TAMBAH CATATAN ---")
+            matkul = input("Nama mata kuliah : ")
+            topik = input("Topik/materi      : ")
+            isi = input("Isi catatan       : ")
+            simpan_catatan(matkul, topik, isi)
+            print("Catatan berhasil disimpan ke CSV.")
+            print("Matkul: " + matkul + " | Topik: " + topik + " | Isi: " + isi)
+        elif pilih == "2":
+            data = baca_catatan()
+            if len(data) == 0:
+                print("Belum ada catatan tersimpan.")
+                continue
+            tampilkan_catatan(data, "DAFTAR CATATAN MATA KULIAH")
+            print("Total Catatan : " + str(len(data)))
+        elif pilih == "3":
+            kata = input("Masukkan kata kunci materi/matkul: ")
+            data = baca_catatan()
+            hasil_cari = cari_materi(data, kata)
+            if len(hasil_cari) == 0:
+                print("Materi tidak ketemu.")
+                continue
+            tampilkan_catatan(hasil_cari, "HASIL PENCARIAN '" + kata + "'")
+        elif pilih == "0":
+            print("Selesai, keluar program.")
+            break
+        else:
+            print("Pilihan tidak ada.")
+
+# 3. TO-DO LIST
+def ambil_todo_saya(nama):
+    semua = baca_csv("todo.csv")
+    daftar = []
+    for data in semua:
+        if data["Nama"] == nama:
+            daftar.append(data)
+    return semua, daftar
+
+def tampilkan_todo(daftar, judul_tabel):
+    print("\n" + judul_tabel)
+    for nomor in range(len(daftar)):
+        d = daftar[nomor]
+        print(str(nomor + 1) + ". " + d["Tugas"] + " | " + d["Mata Kuliah"] + " | " + d["Deskripsi"] + " | " + d["Deadline"] + " | " + d["Prioritas"] + " | " + d["Status"])
+
+def todo_list(nama):
+    while True:
+        print("\n===== UNIDAY - TO-DO LIST =====")
+        print("UNIVERSITY DAILY ACTIVITY")
+        print("1. Add New Task")
+        print("2. My Task List")
+        print("3. Task Checklist")
+        print("4. Delete Task")
+        print("5. Kembali ke Beranda....")
+        pilihan = input("Pilih menu (1-5): ")
+        if pilihan == "1":
+            print("\n--- UNIDAY - ADD NEW TASK ---")
+            tugas = input("Nama Tugas       : ")
+            matkul = input("Mata Kuliah      : ")
+            deskripsi = input("Deskripsi Tugas  : ")
+            deadline = input("Deadline         : ")
+            prioritas = input("Prioritas (Tinggi/Sedang/Rendah): ")
+            with open("todo.csv", "a", newline="") as file:
+                writer = csv.writer(file)
+                if file.tell() == 0:
+                    writer.writerow(["Nama", "Tugas", "Mata Kuliah", "Deskripsi", "Deadline", "Prioritas", "Status"])
+                writer.writerow([nama, tugas, matkul, deskripsi, deadline, prioritas, "Belum Selesai"])
+            print("\nTugas berhasil ditambahkan!")
+            print("Nama: " + nama + " | Tugas: " + tugas + " | Matkul: " + matkul + " | Deadline: " + deadline + " | Prioritas: " + prioritas + " | Status: Belum Selesai")
+        elif pilihan == "2":
+            semua, daftar = ambil_todo_saya(nama)
+            if len(daftar) == 0:
+                print("\nBelum ada tugas yang ditambahkan.")
+            else:
+                tampilkan_todo(daftar, "MY TASK LIST - " + nama)
+                print("Total Tugas: " + str(len(daftar)) + " | Nama: " + nama)
+        elif pilihan == "3":
+            print("\n--- UNIDAY - TASK CHECKLIST ---")
+            semua, daftar = ambil_todo_saya(nama)
+            for nomor in range(len(daftar)):
+                d = daftar[nomor]
+                tanda = "[V]" if d["Status"] == "Selesai" else "[ ]"
+                print(str(nomor + 1) + ". " + tanda + " " + d["Tugas"] + " | " + d["Mata Kuliah"] + " | " + d["Deadline"])
+            pilih = input("Centang nomor tugas (0 untuk kembali): ")
+            if pilih != "0":
+                pilih = int(pilih) - 1
+                if pilih >= 0 and pilih < len(daftar):
+                    daftar[pilih]["Status"] = "Selesai"
+                    tulis_csv("todo.csv", ["Nama", "Tugas", "Mata Kuliah", "Deskripsi", "Deadline", "Prioritas", "Status"], semua)
+                    print("\n[V] Tugas berhasil dicentang!")
+        elif pilihan == "4":
+            semua, daftar = ambil_todo_saya(nama)
+            if len(daftar) == 0:
+                print("Belum ada tugas.")
+            else:
+                tampilkan_todo(daftar, "UNIDAY - DELETE TASK")
+                pilih = int(input("Pilih nomor tugas yang ingin dihapus: ")) - 1
+                if pilih >= 0 and pilih < len(daftar):
+                    semua.remove(daftar[pilih])
+                    tulis_csv("todo.csv", ["Nama", "Tugas", "Mata Kuliah", "Deskripsi", "Deadline", "Prioritas", "Status"], semua)
+                    print("\nTugas berhasil dihapus!")
+                else:
+                    print("Nomor tugas tidak ditemukan.")
+        elif pilihan == "5":
+            print("Kembali ke beranda...")
+            break
+        else:
+            print("Pilihan tidak valid!")
+
+# 4. STUDY TRACKER
+def baca_data_tracker():
+    global nilai_list, ipk_list
+    nilai_list = []
+    ipk_list = []
+    try:
+        with open("Study Tracker.csv", "r", newline="") as file:
+            reader = csv.reader(file)
+            next(reader, None)
+            for data in reader:
+                if len(data) == 6:
+                    if data[0] == "Nilai":
+                        nilai_list.append([data[1], data[2], float(data[3]), float(data[4]), float(data[5])])
+                    elif data[0] == "IPK":
+                        ipk_list.append([data[1], data[2], float(data[5])])
+                elif len(data) == 5:
+                    if data[0] == "Nilai":
+                        nilai_list.append(["", data[1], float(data[2]), float(data[3]), float(data[4])])
+                    elif data[0] == "IPK":
+                        ipk_list.append(["", data[1], float(data[4])])
+    except:
+        pass
+
+def simpan_tracker():
+    with open("Study Tracker.csv", "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Jenis Data", "Nama", "Mata Kuliah/Semester", "Kuis", "UTS", "UAS/IPK"])
+        for data in nilai_list:
+            writer.writerow(["Nilai"] + data)
+        for data in ipk_list:
+            writer.writerow(["IPK", data[0], data[1], "-", "-", data[2]])
+
+def hitung_nilai(kuis, uts, uas):
+    akhir = (kuis * 0.2) + (uts * 0.3) + (uas * 0.5)
+    huruf = "E"
+    if akhir >= 80:
+        huruf = "A"
+    elif akhir >= 70:
+        huruf = "B"
+    elif akhir >= 60:
+        huruf = "C"
+    elif akhir >= 50:
+        huruf = "D"
+    return akhir, huruf
+
+def hitung_predikat(ipk):
+    if ipk >= 3.5:
+        return "Sangat Bagus / Cumlaude"
+    if ipk >= 3.0:
+        return "Bagus"
+    if ipk >= 2.75:
+        return "Normal / Cukup"
+    if ipk >= 2.0:
+        return "Kurang"
+    return "Sangat Kurang, Semangat!"
+
+def tampilkan_tracker_1_orang(nama_tampil):
+    print("\nNAMA MAHASISWA : " + nama_tampil)
+    print("\n-- NILAI --")
+    ada_nilai = False
+    hitung = 1
+    for nomor in range(len(nilai_list)):
+        if nilai_list[nomor][0] == nama_tampil or nilai_list[nomor][0] == "":
+            matkul = nilai_list[nomor][1]
+            kuis = nilai_list[nomor][2]
+            uts = nilai_list[nomor][3]
+            uas = nilai_list[nomor][4]
+            akhir, huruf = hitung_nilai(kuis, uts, uas)
+            print(str(hitung) + ". " + matkul + " | " + str(kuis) + " | " + str(uts) + " | " + str(uas) + " | " + str(round(akhir, 2)) + " | " + huruf)
+            ada_nilai = True
+            hitung = hitung + 1
+    if not ada_nilai:
+        print("Belum ada nilai!")
+    print("\n-- RIWAYAT IPK --")
+    ada_ipk = False
+    hitung_ipk = 1
+    for nomor in range(len(ipk_list)):
+        if ipk_list[nomor][0] == nama_tampil or ipk_list[nomor][0] == "":
+            semester = ipk_list[nomor][1]
+            ipk = ipk_list[nomor][2]
+            predikat = hitung_predikat(ipk)
+            print(str(hitung_ipk) + ". " + str(semester) + " | " + str(ipk) + " | " + predikat)
+            ada_ipk = True
+            hitung_ipk = hitung_ipk + 1
+    if not ada_ipk:
+        print("Belum input IPK!")
+
+def ambil_nilai_saya(nama):
+    daftar = []
+    for data in nilai_list:
+        if data[0] == nama or data[0] == "":
+            daftar.append(data)
+    return daftar
+
+def tampilkan_nilai_saya(daftar):
+    for nomor in range(len(daftar)):
+        print(str(nomor + 1) + ". " + daftar[nomor][1] + " | " + str(daftar[nomor][2]) + " | " + str(daftar[nomor][3]) + " | " + str(daftar[nomor][4]))
+
+def study_tracker(nama):
+    baca_data_tracker()
+    while True:
+        print("\n========== STUDY TRACKER ==========")
+        print("Nama Mahasiswa : " + nama)
+        print("1. Lihat Nilai dan IPK Saya")
+        print("2. Input Nilai (Kuis, UTS, UAS)")
+        print("3. Input IPK (Input Sendiri)")
+        print("4. Ubah Nilai")
+        print("5. Hapus Nilai")
+        print("6. Kembali")
+        pilih = input("Pilih menu: ")
+        if pilih == "1":
+            tampilkan_tracker_1_orang(nama)
+        elif pilih == "2":
+            print("\n--- INPUT NILAI ---")
+            matkul = input("Nama Mata Kuliah: ")
+            kuis = input_angka("Nilai Kuis: ", 0, 100)
+            uts = input_angka("Nilai UTS: ", 0, 100)
+            uas = input_angka("Nilai UAS: ", 0, 100)
+            nilai_list.append([nama, matkul, kuis, uts, uas])
+            simpan_tracker()
+            print("Nilai berhasil disimpan!")
+            print("Nama: " + nama + " | Matkul: " + matkul + " | Kuis: " + str(kuis) + " | UTS: " + str(uts) + " | UAS: " + str(uas))
+        elif pilih == "3":
+            print("\n--- INPUT IPK ---")
+            semester = input("Semester ke-berapa: ")
+            ipk = input_angka("Masukkan IPK (0.00 - 4.00): ", 0, 4)
+            ipk_list.append([nama, semester, ipk])
+            simpan_tracker()
+            print("IPK berhasil disimpan!")
+            print("Nama: " + nama + " | Semester: " + semester + " | IPK: " + str(ipk))
+        elif pilih == "4":
+            daftar = ambil_nilai_saya(nama)
+            if len(daftar) == 0:
+                print("Belum ada nilai yang bisa diubah!")
+            else:
+                tampilkan_nilai_saya(daftar)
+                try:
+                    nomor_pilih = int(input("Nomor yang mau diubah: ")) - 1
+                    if nomor_pilih >= 0 and nomor_pilih < len(daftar):
+                        target = daftar[nomor_pilih]
+                        for data in nilai_list:
+                            if data == target:
+                                data[0] = nama
+                                data[2] = input_angka("Kuis baru: ", 0, 100)
+                                data[3] = input_angka("UTS baru: ", 0, 100)
+                                data[4] = input_angka("UAS baru: ", 0, 100)
+                                break
+                        simpan_tracker()
+                        print("Nilai berhasil diubah!")
+                    else:
+                        print("Nomor tidak ditemukan!")
+                except ValueError:
+                    print("Masukkan nomor yang valid!")
+        elif pilih == "5":
+            daftar = ambil_nilai_saya(nama)
+            if len(daftar) == 0:
+                print("Belum ada nilai yang bisa dihapus!")
+            else:
+                tampilkan_nilai_saya(daftar)
+                try:
+                    nomor_pilih = int(input("Nomor yang mau dihapus: ")) - 1
+                    if nomor_pilih >= 0 and nomor_pilih < len(daftar):
+                        nilai_list.remove(daftar[nomor_pilih])
+                        simpan_tracker()
+                        print("Nilai berhasil dihapus!")
+                    else:
+                        print("Nomor tidak ditemukan!")
+                except ValueError:
+                    print("Masukkan nomor yang valid!")
+        elif pilih == "6":
+            print("Kembali ke menu utama...")
+            break
+        else:
+            print("Pilihan tidak tersedia!")
+
+# 5. BERANDA MAHASISWA
+def beranda_mahasiswa(nama, kelas):
+    while True:
+        print("\n" + "=" * 44)
+        print(tengah("UNIDAY", 44))
+        print(tengah("UNIVERSITY DAILY ACTIVITY", 44))
+        print("=" * 44)
+        print("HELLO, " + nama)
+        print("KELAS " + kelas)
+        print(tengah("This is your academic journey", 44))
+        print("=" * 44)
+        print("   [01]  JADWAL KULIAH")
+        print("   [02]  CATATAN MATA KULIAH")
+        print("   [03]  TO-DO LIST")
+        print("   [04]  STUDY TRACKER")
+        print("   [05]  LOGOUT")
+        print("=" * 44)
+        pilihan = input("  Pilih menu (1-5): ")
+        if pilihan == "1":
+            jadwal_kuliah_mahasiswa(kelas)
+        elif pilihan == "2":
+            catatan_matkul()
+        elif pilihan == "3":
+            todo_list(nama)
+        elif pilihan == "4":
+            study_tracker(nama)
+        elif pilihan == "5":
+            print("\nBerhasil logout!")
+            break
+        else:
+            print("\nPilihan tidak valid!")
+
+# 6. REGISTRASI & LOGIN MAHASISWA
+def registrasi():
+    print("\n===== REGISTRASI MAHASISWA =====")
+    nama = input("Masukkan nama lengkap: ")
+    nim = input("Masukkan NIM: ")
+    username = input("Buat username: ")
+    password = input("Buat password: ")
+    prodi = input("Masukkan Prodi: ")
+    fakultas = input("Masukkan Fakultas: ")
+    kelas = ""
+    while kelas != "A" and kelas != "B" and kelas != "C":
+        kelas = input("Pilih Kelas (A/B/C): ")
+        if kelas != "A" and kelas != "B" and kelas != "C":
+            print("Pilih A, B, atau C aja!")
+    semua = baca_csv("akun.csv")
+    for data in semua:
+        if data["Username"] == username:
+            print("Username sudah digunakan!")
+            return
+        if data["NIM"] == nim:
+            print("NIM sudah terdaftar! Kalau kamu dikeluarkan, hubungi admin.")
+            return
+    with open("akun.csv", "a", newline="") as file:
+        writer = csv.writer(file)
+        if file.tell() == 0:
+            writer.writerow(["Nama", "NIM", "Username", "Password", "Prodi", "Fakultas", "Kelas", "Status"])
+        writer.writerow([nama, nim, username, password, prodi, fakultas, kelas, "Aktif"])
+    print("\nRegistrasi berhasil!")
+    print("Nama: " + nama + " | NIM: " + nim + " | Username: " + username + " | Prodi: " + prodi + " | Fakultas: " + fakultas + " | Kelas: " + kelas + " | Status: Aktif")
+
+def login_mahasiswa():
+    print("\n===== LOGIN MAHASISWA =====")
+    username = input("Masukkan username: ")
+    password = input("Masukkan password: ")
+    semua = baca_csv("akun.csv")
+    for data in semua:
+        if data["Username"] == username and data["Password"] == password:
+            if data["Status"] == "Dikeluarkan":
+                print("\nAnda dikeluarkan dari UNIDAY, tidak bisa login lagi.")
+                print("Hubungi admin untuk info lebih lanjut.")
+                return
+            print("\nLogin berhasil!")
+            print("Nama: " + data["Nama"] + " | NIM: " + data["NIM"] + " | Kelas: " + data["Kelas"] + " | Prodi: " + data["Prodi"] + " | Fakultas: " + data["Fakultas"])
+            beranda_mahasiswa(data["Nama"], data["Kelas"])
+            return
+    print("\nUsername atau password salah!")
+
+# 7. ADMIN
+def urutkan_mahasiswa(semua):
+    urut = []
+    for data in semua:
+        urut.append(data)
+    for i in range(len(urut)):
+        for j in range(len(urut) - 1):
+            if urut[j]["Kelas"] > urut[j + 1]["Kelas"]:
+                temp = urut[j]
+                urut[j] = urut[j + 1]
+                urut[j + 1] = temp
+    return urut
+
+def tampilkan_mahasiswa(urut, dengan_username=True):
+    for nomor in range(len(urut)):
+        d = urut[nomor]
+        if dengan_username:
+            print(str(nomor + 1) + ". " + d["Nama"] + " | " + d["NIM"] + " | " + d["Username"] + " | " + d["Kelas"] + " | " + d["Prodi"] + " | " + d["Fakultas"] + " | " + d["Status"])
+        else:
+            print(str(nomor + 1) + ". " + d["Nama"] + " | " + d["NIM"] + " | " + d["Kelas"] + " | " + d["Status"])
+
+def lihat_data_mahasiswa_admin():
+    semua = baca_csv("akun.csv")
+    urut = urutkan_mahasiswa(semua)
+    print("\nDATA MAHASISWA UNIDAY - SEMUA KELAS")
+    tampilkan_mahasiswa(urut, True)
+    print("Jumlah Mahasiswa: " + str(len(urut)))
+
+def pilih_kelas_jadwal():
+    kelas_admin = ""
+    while kelas_admin != "A" and kelas_admin != "B" and kelas_admin != "C":
+        print("\n===== PILIH KELAS JADWAL =====")
+        print("1. Kelas A")
+        print("2. Kelas B")
+        print("3. Kelas C")
+        pilih_kelas = input("Pilih kelas (1-3): ")
+        if pilih_kelas == "1":
+            kelas_admin = "A"
+        elif pilih_kelas == "2":
+            kelas_admin = "B"
+        elif pilih_kelas == "3":
+            kelas_admin = "C"
+        else:
+            print("Pilih 1, 2, atau 3 aja!")
+    print("\nJadwal yang diatur: Kelas " + kelas_admin)
+    return kelas_admin
+
+def tandai_ada_perubahan():
+    if len(notif_list) == 0:
+        notif_list.append("ada")
+
+def atur_jadwal_admin():
+    while True:
+        print("\n--- JADWAL KULIAH - ADMIN ---")
+        print("1. Tampilkan Jadwal")
+        print("2. Masukkan Jadwal (Senin-Jumat)")
+        print("3. Tambah Jadwal (Baru/Pindahan)")
+        print("4. Cari Jadwal")
+        print("5. Ganti Jadwal")
+        print("6. Hapus Jadwal")
+        print("7. Kembali")
+        pilih = input("Pilih: ")
+        if pilih == "1":
+            kelas_admin = pilih_kelas_jadwal()
+            tampilkan_jadwal(kelas_admin)
+        elif pilih == "2":
+            kelas_admin = pilih_kelas_jadwal()
+            tampilkan_jadwal(kelas_admin)
+            hari_list = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"]
+            for hari in hari_list:
+                print("\n-- " + hari.upper() + " --")
+                while True:
+                    matkul = input("Matkul (ketik 'skip' kalau libur): ")
+                    if matkul == "skip" or matkul == "":
+                        break
                     jam = input("Jam: ")
                     dosen = input("Dosen: ")
                     ruangan = input("Ruangan: ")
-                    if matkul != "" and jam != "":
-                        jadwal_list.append([hari_pilih, matkul, jam, dosen, ruangan])
-                        simpan_semua()
-                        print("Berhasil ditambah! Jadwal lama tetap ada.")
-                    else:
-                        print("Matkul dan jam jangan sampai kosong!")
+                    jadwal_list.append([kelas_admin, hari, matkul, jam, dosen, ruangan])
+                    lagi = input("Ada jadwal lagi di " + hari + "? (y/n): ")
+                    if lagi != "y":
+                        break
+            simpan_jadwal()
+            tandai_ada_perubahan()
+            print("Jadwal tersimpan!")
+        elif pilih == "3":
+            kelas_admin = pilih_kelas_jadwal()
+            tampilkan_jadwal(kelas_admin)
+            print("\n--- TAMBAH JADWAL BARU - KELAS " + kelas_admin + " ---")
+            hari_list = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"]
+            for nomor_hari in range(len(hari_list)):
+                print(str(nomor_hari + 1) + ". " + hari_list[nomor_hari])
+            nomor_hari = int(input("Nomor hari: ")) - 1
+            if nomor_hari >= 0 and nomor_hari < len(hari_list):
+                hari_pilih = hari_list[nomor_hari]
+                matkul = input("Matkul baru: ")
+                jam = input("Jam: ")
+                dosen = input("Dosen: ")
+                ruangan = input("Ruangan: ")
+                if matkul != "" and jam != "":
+                    jadwal_list.append([kelas_admin, hari_pilih, matkul, jam, dosen, ruangan])
+                    simpan_jadwal()
+                    tandai_ada_perubahan()
+                    print("Berhasil ditambah! Jadwal lama tetap ada.")
+                    print("Kelas: " + kelas_admin + " | Hari: " + hari_pilih + " | Matkul: " + matkul + " | Jam: " + jam + " | Dosen: " + dosen + " | Ruangan: " + ruangan)
                 else:
-                    print("Nomor hari salah!")
+                    print("Matkul dan jam jangan sampai kosong!")
+            else:
+                print("Nomor hari salah!")
+        elif pilih == "4":
+            kelas_admin = pilih_kelas_jadwal()
+            tampilkan_jadwal(kelas_admin)
+            cari = input("Cari matkul / dosen / ruangan: ")
+            cari_dan_tampilkan_jadwal(kelas_admin, cari)
+        elif pilih == "5":
+            kelas_admin = pilih_kelas_jadwal()
+            tampilkan_jadwal(kelas_admin)
+            print("\n--- GANTI JADWAL - KELAS " + kelas_admin + " ---")
+            target = pilih_jadwal_per_hari(kelas_admin)
+            if target != None:
+                print("Isi baru (kosongin / enter aja kalau gak mau diubah):")
+                matkul_baru = input("Matkul baru [" + target[2] + "]: ")
+                jam_baru = input("Jam baru [" + target[3] + "]: ")
+                dosen_baru = input("Dosen baru [" + target[4] + "]: ")
+                ruangan_baru = input("Ruangan baru [" + target[5] + "]: ")
+                if matkul_baru != "":
+                    target[2] = matkul_baru
+                if jam_baru != "":
+                    target[3] = jam_baru
+                if dosen_baru != "":
+                    target[4] = dosen_baru
+                if ruangan_baru != "":
+                    target[5] = ruangan_baru
+                simpan_jadwal()
+                tandai_ada_perubahan()
+                print("Berhasil diganti!")
+        elif pilih == "6":
+            kelas_admin = pilih_kelas_jadwal()
+            tampilkan_jadwal(kelas_admin)
+            print("\n--- HAPUS JADWAL - KELAS " + kelas_admin + " ---")
+            target = pilih_jadwal_per_hari(kelas_admin)
+            if target != None:
+                jadwal_list.remove(target)
+                simpan_jadwal()
+                tandai_ada_perubahan()
+                print("Berhasil dihapus!")
+        elif pilih == "7":
+            break
+        else:
+            print("Pilihan tidak tersedia!")
 
-            elif p == "4":
-                cari = input("Cari matkul / dosen / ruangan: ")
-                cari_kecil = cari.lower()
-                ketemu = False
-                for j in range(len(jadwal_list)):
-                    matkul_kecil = jadwal_list[j][1].lower()
-                    dosen_kecil = jadwal_list[j][3].lower()
-                    ruangan_kecil = jadwal_list[j][4].lower()
-                    if cari_kecil in matkul_kecil or cari_kecil in dosen_kecil or cari_kecil in ruangan_kecil:
-                        print(jadwal_list[j][0] + " - " + jadwal_list[j][1] + " - " + jadwal_list[j][2] + " - " + jadwal_list[j][3] + " - " + jadwal_list[j][4])
-                        ditemukan = True
-                if not ditemukan:
-                    print("Gak ketemu!")
+def lihat_study_tracker_admin():
+    print("\n===== STUDY TRACKER MAHASISWA (ADMIN LIHAT SAJA) =====")
+    baca_data_tracker()
+    semua_mhs = baca_csv("akun.csv")
+    if len(semua_mhs) == 0:
+        print("Belum ada mahasiswa.")
+    else:
+        for data_mhs in semua_mhs:
+            tampilkan_tracker_1_orang(data_mhs["Nama"])
 
-            elif p == "5":
-                for j in range(len(jadwal_list)):
-                    print(str(j) + ". " + jadwal_list[j][0] + " - " + jadwal_list[j][1] + " | " + jadwal_list[j][2] + " | " + jadwal_list[j][3] + " | " + jadwal_list[j][4])
-                nomor = int(input("Nomor yang mau diubah: "))
-                if nomor >= 0 and nomor < len(jadwal_list):
-                    print("Isi baru (kosongin / enter aja kalau gak mau diubah):")
-                    matkul_baru = input("Matkul baru [" + jadwal_list[nomor][1] + "]: ")
-                    jam_baru = input("Jam baru [" + jadwal_list[nomor][2] + "]: ")
-                    dosen_baru = input("Dosen baru [" + jadwal_list[nomor][3] + "]: ")
-                    ruangan_baru = input("Ruangan baru [" + jadwal_list[nomor][4] + "]: ")
-                    if matkul_baru != "":
-                        jadwal_list[nomor][1] = matkul_baru
-                    if jam_baru != "":
-                        jadwal_list[nomor][2] = jam_baru
-                    if dosen_baru != "":
-                        jadwal_list[nomor][3] = dosen_baru
-                    if ruangan_baru != "":
-                        jadwal_list[nomor][4] = ruangan_baru
-                    simpan_semua()
-                    print("Berhasil diubah!")
-                else:
-                    print("Nomor salah!")
+def keluarkan_mahasiswa_admin():
+    semua = baca_csv("akun.csv")
+    urut = urutkan_mahasiswa(semua)
+    if len(urut) == 0:
+        print("Belum ada mahasiswa.")
+        return
+    print("\nKELUARKAN MAHASISWA")
+    tampilkan_mahasiswa(urut, False)
+    pilih = int(input("Pilih nomor mahasiswa yang dikeluarkan: ")) - 1
+    if pilih >= 0 and pilih < len(urut):
+        nama_keluar = urut[pilih]["Nama"]
+        urut[pilih]["Status"] = "Dikeluarkan"
+        tulis_csv("akun.csv", ["Nama", "NIM", "Username", "Password", "Prodi", "Fakultas", "Kelas", "Status"], semua)
+        print("\n" + nama_keluar + " berhasil dikeluarkan! Dia tidak bisa login lagi.")
+    else:
+        print("Nomor tidak ditemukan.")
 
-            elif p == "6":
-                for j in range(len(jadwal_list)):
-                    print(str(j) + ". " + jadwal_list[j][0] + " - " + jadwal_list[j][1])
-                nomor = int(input("Nomor yang mau dihapus: "))
-                if nomor >= 0 and nomor < len(jadwal_list):
-                    jadwal_list.pop(nomor)
-                    simpan_semua()
-                    print("Berhasil dihapus!")
-            elif p == "7":
-                break
+def menu_admin():
+    while True:
+        print("\n===== MENU ADMIN =====")
+        print("1. Lihat data mahasiswa")
+        print("2. Atur jadwal kuliah mahasiswa")
+        print("3. Lihat Study Tracker mahasiswa")
+        print("4. Keluarkan mahasiswa")
+        print("5. Logout")
+        pilihan = input("Pilih menu: ")
+        if pilihan == "1":
+            lihat_data_mahasiswa_admin()
+        elif pilihan == "2":
+            atur_jadwal_admin()
+        elif pilihan == "3":
+            lihat_study_tracker_admin()
+        elif pilihan == "4":
+            keluarkan_mahasiswa_admin()
+        elif pilihan == "5":
+            print("Admin berhasil logout!")
+            break
+        else:
+            print("Pilihan tidak tersedia!")
+
+def login_admin():
+    print("\n===== LOGIN ADMIN =====")
+    username = input("Masukkan username admin: ")
+    password = input("Masukkan password admin: ")
+    semua = baca_csv("admin.csv")
+    if len(semua) == 0:
+        print("Data admin tidak ditemukan. Cek file admin.csv!")
+        return
+    for data in semua:
+        if data["Username"] == username and data["Password"] == password:
+            print("\nLogin admin berhasil!")
+            menu_admin()
+            return
+    print("\nUsername atau password admin salah!")
+
+# 8. MENU UTAMA
+def menu_utama():
+    while True:
+        print("\n" + "=" * 36)
+        print(tengah("UNIDAY", 36))
+        print(tengah("UNIVERSITY DAILY ACTIVITY", 36))
+        print("=" * 36)
+        print("1. Registrasi Mahasiswa")
+        print("2. Login Mahasiswa")
+        print("3. Login Admin")
+        print("4. Keluar")
+        pilihan = input("Pilihan menu (1-4): ")
+        if pilihan == "1":
+            registrasi()
+        elif pilihan == "2":
+            login_mahasiswa()
+        elif pilihan == "3":
+            login_admin()
+        elif pilihan == "4":
+            print("\nTerima kasih telah menggunakan aplikasi!")
+            break
+        else:
+            print("\nPilihan tidak valid! Silakan coba lagi.")
+
+menu_utama()
