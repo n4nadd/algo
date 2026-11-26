@@ -12,7 +12,7 @@ def baca_csv(nama_file):
         with open(nama_file, "r", newline="") as file:
             reader = csv.DictReader(file)
             for data in reader:
-                hasil.append(data)
+                hasil.append(data)  
     except FileNotFoundError:
         hasil = []
     return hasil
