@@ -325,34 +325,41 @@ def catatan_matkul():
                 print("Belum ada catatan tersimpan.")
                 continue
             print("\n===== DAFTAR CATATAN MATA KULIAH =====")
-            print("Keterangan: No | Matkul | Topik | Isi (di dalam kotak)")
-            for nomor in range(len(data)):
-                item = data[nomor]
-                print(str(nomor + 1) + ". Matkul: " + item[0] + " | Topik: " + item[1])
-                panjang = len(item[2]) + 4
-                print("+" + "-" * (panjang - 2) + "+")
-                print("| " + item[2] + " |")
-                print("+" + "-" * (panjang - 2) + "+")
-            print("Total Catatan : " + str(len(data)))
+            print("-" * 85)
+            print(f"{'No':<4} {'Mata Kuliah':<20} {'Topik':<25} {'Isi Catatan'}")
+            print("-" * 85)
+            for nomor, item in enumerate(data, start=1):
+                if item[0] == "Matkul":
+                    continue
+
+                print(
+                    f"{nomor:<4} {item[0]:<20} "
+                    f"{item[1]:<25} {item[2]}"
+                )
+            print("-" * 85)
+            print("Total Catatan :", len(data))
         elif pilih == "3":
             kata = input("Masukkan kata kunci materi/matkul: ")
             data = baca_catatan()
             hasil_cari = cari_materi(data, kata)
             if len(hasil_cari) == 0:
-                print("Materi tidak ketemu.")
+                print("Materi tidak ditemukan.")
                 continue
-            print("\n===== HASIL PENCARIAN '" + kata + "' =====")
-            print("Keterangan: No | Matkul | Topik | Isi")
-            for nomor in range(len(hasil_cari)):
-                item = hasil_cari[nomor]
-                print(str(nomor + 1) + ". Matkul: " + item[0] + " | Topik: " + item[1])
-                panjang = len(item[2]) + 4
-                print("+" + "-" * (panjang - 2) + "+")
-                print("| " + item[2] + " |")
-                print("+" + "-" * (panjang - 2) + "+")
+            print("\n===== HASIL PENCARIAN =====")
+            print("-" * 85)
+            print(f"{'No':<4} {'Mata Kuliah':<20} {'Topik':<25} {'Isi Catatan'}")
+            print("-" * 85)
+            for nomor, item in enumerate(hasil_cari, start=1):
+                if item[0] == "Matkul":
+                    continue
+                print(
+                    f"{nomor:<4} {item[0]:<20} "
+                    f"{item[1]:<25} {item[2]}"
+                )
+            print("-" * 85)
+            print("Total Hasil :", len(hasil_cari))
         elif pilih == "0":
             print("Selesai, keluar program.")
-            break
         else:
             print("Pilihan tidak ada.")
 
